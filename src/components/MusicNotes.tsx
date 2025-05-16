@@ -2,11 +2,12 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-const NoteShape: React.FC<{ className?: string }> = ({ className }) => (
+const NoteShape: React.FC<{ className?: string; style?: React.CSSProperties }> = ({ className, style }) => (
   <svg 
     className={cn("h-8 w-8", className)}
     viewBox="0 0 24 24" 
     fill="currentColor"
+    style={style}
   >
     <path d="M9 18V5l12-2v13" />
     <circle cx="6" cy="18" r="3" />
