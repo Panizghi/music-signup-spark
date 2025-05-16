@@ -1,5 +1,10 @@
 name: Deploy Frontend to GitHub Pages
 
+# Grant the GITHUB_TOKEN permission to push to gh-pages
+permissions:
+  contents: write
+  pages: write
+
 on:
   push:
     branches:
@@ -9,9 +14,16 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    # If your build ever needs DB_USER/DB_KEY, they’ll be available
+    env:
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_KEY:  ${{ secrets.DB_KEY }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -21,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build
+      - name: Build production bundle
         run: npm run build
 
       - name: Deploy to GitHub Pages
