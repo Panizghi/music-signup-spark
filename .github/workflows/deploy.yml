@@ -1,0 +1,30 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    # inject your DB creds
+    env:
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_KEY:  ${{ secrets.DB_KEY }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and Start server
+        run: |
+          npm run build     # builds your TS → JS
+          npm run start     # or your production start script
