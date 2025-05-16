@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "preview": "vite preview",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "start": "vite preview"
   },
   "dependencies": {
     "mongodb": "^5.8.0",
