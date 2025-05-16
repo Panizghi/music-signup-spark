@@ -57,8 +57,8 @@ export const saveEmailToDatabase = async (email: string): Promise<void> => {
     await client.connect();
 
     // choose your database and collection
-    const db = client.db('yourDatabaseName');      // ← change to your DB name
-    const subscribers = db.collection('subscribers');
+    const db = client.db('email_waitlist');    
+    const subscribers = db.collection('emails');
 
     // insert a document
     const result = await subscribers.insertOne({
