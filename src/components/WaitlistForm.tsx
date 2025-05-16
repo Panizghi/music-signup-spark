@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
 import dotenv from 'dotenv';
+// This function would be replaced with actual database connection
+import { MongoClient, ServerApiVersion } from 'mongodb';
+
 dotenv.config();
 // …
 const username = process.env.DB_USER;
@@ -27,15 +30,7 @@ const saveEmailToStorage = (email: string): void => {
   }
 };
 
-// This function would be replaced with actual database connection
-import { MongoClient, ServerApiVersion } from 'mongodb';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-// grab your secrets (make sure you’ve set these in GitHub as DB_USER and DB_KEY)
-const username = process.env.DB_USER;
-const password = process.env.DB_KEY;
 
 if (!username || !password) {
   throw new Error('Missing DB_USER or DB_KEY environment variables');
