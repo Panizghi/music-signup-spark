@@ -4,6 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
+import dotenv from 'dotenv';
+dotenv.config();
+// …
+const username = process.env.DB_USER;
+const password = process.env.DB_KEY;
 
 const validateEmail = (email: string): boolean => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
