@@ -10,6 +10,18 @@ const validateEmail = (email: string): boolean => {
   return re.test(email);
 };
 
+const saveEmailToStorage = (email: string): void => {
+  // Get existing emails from localStorage
+  const existingEmails = localStorage.getItem('waitlistEmails');
+  let emails = existingEmails ? JSON.parse(existingEmails) : [];
+  
+  // Add the new email if it doesn't already exist
+  if (!emails.includes(email)) {
+    emails.push(email);
+    localStorage.setItem('waitlistEmails', JSON.stringify(emails));
+  }
+};
+
 const WaitlistForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,16 +42,30 @@ const WaitlistForm: React.FC = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    
-    toast({
-      title: "Success!",
-      description: "You've been added to our waitlist. Stay tuned!",
-    });
+    try {
+      // Save email to localStorage
+      saveEmailToStorage(email);
+      
+      // Simulate API call for UX purposes
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setIsSubmitting(false);
+      setIsSuccess(true);
+      
+      toast({
+        title: "Success!",
+        description: "You've been added to our waitlist. Stay tuned!",
+      });
+      
+      console.log("Waitlist emails:", JSON.parse(localStorage.getItem('waitlistEmails') || '[]'));
+    } catch (error) {
+      setIsSubmitting(false);
+      toast({
+        title: "Something went wrong",
+        description: "Failed to add you to the waitlist. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isSuccess) {
