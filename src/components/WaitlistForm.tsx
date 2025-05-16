@@ -11,15 +11,26 @@ const validateEmail = (email: string): boolean => {
 };
 
 const saveEmailToStorage = (email: string): void => {
-  // Get existing emails from localStorage
-  const existingEmails = localStorage.getItem('waitlistEmails');
+  // Get existing emails from localStorage (temporary solution)
+  const existingEmails = localStorage.getItem('catenaWaitlistEmails');
   let emails = existingEmails ? JSON.parse(existingEmails) : [];
   
   // Add the new email if it doesn't already exist
   if (!emails.includes(email)) {
     emails.push(email);
-    localStorage.setItem('waitlistEmails', JSON.stringify(emails));
+    localStorage.setItem('catenaWaitlistEmails', JSON.stringify(emails));
   }
+};
+
+// This function would be replaced with actual database connection
+const saveEmailToDatabase = async (email: string): Promise<void> => {
+  // Placeholder for database integration
+  // When you deploy and add your database, replace this function
+  // with actual database connection code
+  console.log('Ready to save to database:', email);
+  
+  // For now, we'll save to localStorage as a temporary solution
+  saveEmailToStorage(email);
 };
 
 const WaitlistForm: React.FC = () => {
@@ -43,21 +54,18 @@ const WaitlistForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // Save email to localStorage
-      saveEmailToStorage(email);
-      
-      // Simulate API call for UX purposes
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // This will be replaced with real database connection
+      await saveEmailToDatabase(email);
       
       setIsSubmitting(false);
       setIsSuccess(true);
       
       toast({
         title: "Success!",
-        description: "You've been added to our waitlist. Stay tuned!",
+        description: "You've been added to Catena's waitlist. Stay tuned!",
       });
       
-      console.log("Waitlist emails:", JSON.parse(localStorage.getItem('waitlistEmails') || '[]'));
+      console.log("Waitlist emails:", JSON.parse(localStorage.getItem('catenaWaitlistEmails') || '[]'));
     } catch (error) {
       setIsSubmitting(false);
       toast({
@@ -79,7 +87,7 @@ const WaitlistForm: React.FC = () => {
         </div>
         <h3 className="text-2xl font-bold text-gray-800">You're on the list!</h3>
         <p className="text-gray-600">
-          We'll let you know when we're ready to launch. Get ready for an amazing musical journey!
+          We'll let you know when Catena is ready to launch. Get ready for an amazing experience!
         </p>
       </div>
     );
@@ -103,7 +111,7 @@ const WaitlistForm: React.FC = () => {
         disabled={isSubmitting} 
         className="w-full bg-music-purple hover:bg-music-purple/90 text-white font-medium py-6"
       >
-        {isSubmitting ? "Adding you..." : "Join the Waitlist"}
+        {isSubmitting ? "Adding you..." : "Join Catena Waitlist"}
       </Button>
     </form>
   );
