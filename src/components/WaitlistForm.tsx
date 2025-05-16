@@ -23,15 +23,59 @@ const saveEmailToStorage = (email: string): void => {
 };
 
 // This function would be replaced with actual database connection
-const saveEmailToDatabase = async (email: string): Promise<void> => {
-  // Placeholder for database integration
-  // When you deploy and add your database, replace this function
-  // with actual database connection code
-  console.log('Ready to save to database:', email);
-  
-  // For now, we'll save to localStorage as a temporary solution
-  saveEmailToStorage(email);
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+// grab your secrets (make sure you’ve set these in GitHub as DB_USER and DB_KEY)
+const username = process.env.DB_USER;
+const password = process.env.DB_KEY;
+
+if (!username || !password) {
+  throw new Error('Missing DB_USER or DB_KEY environment variables');
+}
+
+// build your connection string
+const uri = `mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+
+// configure a single client instance (reuse across calls if you’d like)
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  }
+});
+
+/**
+ * Saves an email address into the "subscribers" collection.
+ */
+export const saveEmailToDatabase = async (email: string): Promise<void> => {
+  try {
+    // connect (v4.7+ will auto-pool if you skip this)
+    await client.connect();
+
+    // choose your database and collection
+    const db = client.db('yourDatabaseName');      // ← change to your DB name
+    const subscribers = db.collection('subscribers');
+
+    // insert a document
+    const result = await subscribers.insertOne({
+      email,
+      subscribedAt: new Date(),
+    });
+
+    console.log(`✔️  Saved email ${email} with _id: ${result.insertedId}`);
+  } catch (err) {
+    console.error('❌  Failed to save email:', err);
+    throw err;
+  } finally {
+    // close when you’re totally done
+    await client.close();
+  }
 };
+
 
 const WaitlistForm: React.FC = () => {
   const [email, setEmail] = useState('');
