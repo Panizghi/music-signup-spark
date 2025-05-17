@@ -4,33 +4,74 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
+import dotenv from 'dotenv';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 
+dotenv.config();
+
+const username = process.env.DB_USER;
+const password = process.env.DB_KEY;
+
+// Client-side validation function
 const validateEmail = (email: string): boolean => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 };
 
+// Local storage backup function
 const saveEmailToStorage = (email: string): void => {
-  // Get existing emails from localStorage (temporary solution)
-  const existingEmails = localStorage.getItem('catenaWaitlistEmails');
-  let emails = existingEmails ? JSON.parse(existingEmails) : [];
-  
-  // Add the new email if it doesn't already exist
+  const existing = localStorage.getItem('catenaWaitlistEmails');
+  const emails = existing ? JSON.parse(existing) : [];
   if (!emails.includes(email)) {
     emails.push(email);
     localStorage.setItem('catenaWaitlistEmails', JSON.stringify(emails));
   }
 };
 
-// This function would be replaced with actual database connection
-const saveEmailToDatabase = async (email: string): Promise<void> => {
-  // Placeholder for database integration
-  // When you deploy and add your database, replace this function
-  // with actual database connection code
-  console.log('Ready to save to database:', email);
-  
-  // For now, we'll save to localStorage as a temporary solution
+// MongoDB connection setup
+let client: MongoClient | null = null;
+
+// Only setup MongoDB if credentials are available
+if (username && password) {
+  const uri = `mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
+  client = new MongoClient(uri, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    },
+  });
+} else {
+  console.warn('Missing DB_USER or DB_KEY environment variables. Using localStorage fallback.');
+}
+
+/**
+ * Saves an email address into the "subscribers" collection.
+ */
+export const saveEmailToDatabase = async (email: string): Promise<void> => {
+  // Always save to localStorage as a backup
   saveEmailToStorage(email);
+  
+  if (!client) {
+    console.log('MongoDB client not configured. Email saved to localStorage only.');
+    return;
+  }
+
+  try {
+    await client.connect();
+    const db = client.db('email_waitlist');
+    const subscribers = db.collection('emails');
+    const result = await subscribers.insertOne({
+      email,
+      subscribedAt: new Date(),
+    });
+    console.log(`✔️  Saved email ${email} with _id: ${result.insertedId}`);
+  } catch (err) {
+    console.error('❌  Failed to save email:', err);
+    throw err;
+  } finally {
+    await client.close();
+  }
 };
 
 const WaitlistForm: React.FC = () => {
@@ -54,7 +95,6 @@ const WaitlistForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      // This will be replaced with real database connection
       await saveEmailToDatabase(email);
       
       setIsSubmitting(false);
