@@ -1,25 +1,24 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
+import path from 'path'
+import { componentTagger } from 'lovable-tagger'
 
 export default defineConfig(({ mode }) => ({
-  // ← add this:
-  base: mode === "production" ? "/music-signup-spark/" : "/",
+  base: mode === 'production' ? '/music-signup-spark/' : '/',
 
   server: {
-    host: "::",
+    host: '::',
     port: 8080,
   },
 
   plugins: [
     react(),
-    mode === "development" && componentTagger(),
+    mode === 'development' ? componentTagger() : null,
   ].filter(Boolean),
 
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
-}));
+}))
