@@ -4,13 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-import dotenv from 'dotenv';
-import { MongoClient, ServerApiVersion } from 'mongodb';
-
-dotenv.config();
-
-const username = process.env.DB_USER;
-const password = process.env.DB_KEY;
 
 // Client-side validation function
 const validateEmail = (email: string): boolean => {
@@ -28,50 +21,16 @@ const saveEmailToStorage = (email: string): void => {
   }
 };
 
-// MongoDB connection setup
-let client: MongoClient | null = null;
-
-// Only setup MongoDB if credentials are available
-if (username && password) {
-  const uri = `mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
-  client = new MongoClient(uri, {
-    serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
-    },
-  });
-} else {
-  console.warn('Missing DB_USER or DB_KEY environment variables. Using localStorage fallback.');
-}
-
 /**
- * Saves an email address into the "subscribers" collection.
+ * Saves an email address to localStorage.
+ * This is a placeholder for future database integration.
  */
 export const saveEmailToDatabase = async (email: string): Promise<void> => {
-  // Always save to localStorage as a backup
+  // Save to localStorage for now
   saveEmailToStorage(email);
   
-  if (!client) {
-    console.log('MongoDB client not configured. Email saved to localStorage only.');
-    return;
-  }
-
-  try {
-    await client.connect();
-    const db = client.db('email_waitlist');
-    const subscribers = db.collection('emails');
-    const result = await subscribers.insertOne({
-      email,
-      subscribedAt: new Date(),
-    });
-    console.log(`✔️  Saved email ${email} with _id: ${result.insertedId}`);
-  } catch (err) {
-    console.error('❌  Failed to save email:', err);
-    throw err;
-  } finally {
-    await client.close();
-  }
+  console.log('Email saved to localStorage. In production, this would connect to a database.');
+  console.log('To connect to MongoDB, you would need to set up a backend API endpoint.');
 };
 
 const WaitlistForm: React.FC = () => {
