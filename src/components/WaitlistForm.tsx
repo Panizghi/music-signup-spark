@@ -7,11 +7,6 @@ import dotenv from 'dotenv';
 // This function would be replaced with actual database connection
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-import dotenv from 'dotenv'
-import { MongoClient, ServerApiVersion } from 'mongodb'
-
-dotenv.config()
-
 const username = process.env.DB_USER
 const password = process.env.DB_KEY
 
