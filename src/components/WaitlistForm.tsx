@@ -7,73 +7,65 @@ import dotenv from 'dotenv';
 // This function would be replaced with actual database connection
 import { MongoClient, ServerApiVersion } from 'mongodb';
 
-dotenv.config();
-// …
-const username = process.env.DB_USER;
-const password = process.env.DB_KEY;
+import dotenv from 'dotenv'
+import { MongoClient, ServerApiVersion } from 'mongodb'
 
-const validateEmail = (email: string): boolean => {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
-};
+dotenv.config()
 
-const saveEmailToStorage = (email: string): void => {
-  // Get existing emails from localStorage (temporary solution)
-  const existingEmails = localStorage.getItem('catenaWaitlistEmails');
-  let emails = existingEmails ? JSON.parse(existingEmails) : [];
-  
-  // Add the new email if it doesn't already exist
-  if (!emails.includes(email)) {
-    emails.push(email);
-    localStorage.setItem('catenaWaitlistEmails', JSON.stringify(emails));
-  }
-};
-
-
+const username = process.env.DB_USER
+const password = process.env.DB_KEY
 
 if (!username || !password) {
-  throw new Error('Missing DB_USER or DB_KEY environment variables');
+  throw new Error('Missing DB_USER or DB_KEY environment variables')
+}
+
+const validateEmail = (email: string): boolean => {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return re.test(email)
+}
+
+const saveEmailToStorage = (email: string): void => {
+  const existing = localStorage.getItem('catenaWaitlistEmails')
+  const emails = existing ? JSON.parse(existing) : []
+  if (!emails.includes(email)) {
+    emails.push(email)
+    localStorage.setItem('catenaWaitlistEmails', JSON.stringify(emails))
+  }
 }
 
 // build your connection string
-const uri = mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0;
+const uri = `mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
 
-// configure a single client instance (reuse across calls if you’d like)
+// configure a single client instance
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
-});
+  },
+})
 
 /**
  * Saves an email address into the "subscribers" collection.
  */
 export const saveEmailToDatabase = async (email: string): Promise<void> => {
   try {
-    // connect (v4.7+ will auto-pool if you skip this)
-    await client.connect();
-
-    // choose your database and collection
-    const db = client.db('email_waitlist');    
-    const subscribers = db.collection('emails');
-
-    // insert a document
+    await client.connect()
+    const db = client.db('email_waitlist')
+    const subscribers = db.collection('emails')
     const result = await subscribers.insertOne({
       email,
       subscribedAt: new Date(),
-    });
-
-    console.log(✔️  Saved email ${email} with _id: ${result.insertedId});
+    })
+    console.log(`✔️  Saved email ${email} with _id: ${result.insertedId}`)
   } catch (err) {
-    console.error('❌  Failed to save email:', err);
-    throw err;
+    console.error('❌  Failed to save email:', err)
+    throw err
   } finally {
-    // close when you’re totally done
-    await client.close();
+    await client.close()
   }
-};
+}
+
 
 
 const WaitlistForm: React.FC = () => {
