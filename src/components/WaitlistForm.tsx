@@ -1,16 +1,9 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Mail } from 'lucide-react';
-import dotenv from 'dotenv';
-// This function would be replaced with actual database connection
-import { MongoClient, ServerApiVersion } from 'mongodb';
-
-dotenv.config();
-// …
-const username = process.env.DB_USER;
-const password = process.env.DB_KEY;
 
 const validateEmail = (email: string): boolean => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,14 +22,22 @@ const saveEmailToStorage = (email: string): void => {
   }
 };
 
+// This function would be replaced with actual database connection
+import { MongoClient, ServerApiVersion } from 'mongodb';
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+// grab your secrets (make sure you’ve set these in GitHub as DB_USER and DB_KEY)
+const username = process.env.DB_USER;
+const password = process.env.DB_KEY;
 
 if (!username || !password) {
   throw new Error('Missing DB_USER or DB_KEY environment variables');
 }
 
 // build your connection string
-const uri = mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0;
+const uri = `mongodb+srv://${username}:${password}@cluster0.ewizuey.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // configure a single client instance (reuse across calls if you’d like)
 const client = new MongoClient(uri, {
@@ -56,8 +57,8 @@ export const saveEmailToDatabase = async (email: string): Promise<void> => {
     await client.connect();
 
     // choose your database and collection
-    const db = client.db('email_waitlist');    
-    const subscribers = db.collection('emails');
+    const db = client.db('yourDatabaseName');      // ← change to your DB name
+    const subscribers = db.collection('subscribers');
 
     // insert a document
     const result = await subscribers.insertOne({
@@ -65,7 +66,7 @@ export const saveEmailToDatabase = async (email: string): Promise<void> => {
       subscribedAt: new Date(),
     });
 
-    console.log(✔️  Saved email ${email} with _id: ${result.insertedId});
+    console.log(`✔️  Saved email ${email} with _id: ${result.insertedId}`);
   } catch (err) {
     console.error('❌  Failed to save email:', err);
     throw err;
